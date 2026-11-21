@@ -1,0 +1,71 @@
+{
+  "title": "Choisir l'univers visuel de Ronetz",
+  "question": "Le tirage a désigné « Le kiosque Mobile Money ». Garde-le, prends une alternative, ou relance.",
+  "options": [
+    {
+      "id": "assigned",
+      "kind": "assigned",
+      "label": "Le kiosque Mobile Money",
+      "kicker": "THE ROLL",
+      "lineage": "Kiosques peints de Douala et Yaoundé, ardoise des tarifs",
+      "thesis": "La console comme un kiosque : une cabine peinte d'une seule couleur, et une ardoise qui affiche la caisse du jour à tout moment.",
+      "palette": ["#0F3D24", "#3CC66A", "#FFFFFF", "#F2F4EF", "#111511"],
+      "materials": ["cabine peinte vert profond", "ardoise des tarifs", "lettrage de peintre en étroit"],
+      "viewport": "Rail vert profond à gauche ; en haut une bande-ardoise « Caisse du jour 48 500 FCFA · 14 accès actifs » ; panneau blanc avec le tableau des ventes en chiffres étroits alignés.",
+      "risk": "Si l'ardoise devient décor, ça vire au costume ; elle doit toujours montrer un vrai chiffre.",
+      "raised": [
+        {"from": "challenger-splitflap", "raise": "Les chiffres de l'ardoise et des tableaux se mettent à jour sur place, en chiffres tabulaires, avec un bref basculement."},
+        {"from": "challenger-orienteering", "raise": "Langue d'états fixe : vert = en marche, ambre = à surveiller, rouge = arrêté ; le vert vif n'est jamais décoratif."},
+        {"from": "challenger-metro", "raise": "Pas de cartes en boîtes : la typographie et les chiffres portent la hiérarchie."}
+      ],
+      "html": ".impeccable/mocks/decision/assigned.html"
+    },
+    {
+      "id": "model-pick",
+      "kind": "pick",
+      "label": "Le billet de banque",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Billets BEAC (FCFA), taille-douce et guilloches",
+      "thesis": "Chaque franc traité comme sur un billet : grands chiffres gravés, encre vert-bleu sur papier, filets guillochés pour séparer.",
+      "palette": ["#0E4A43", "#3CC66A", "#FBFAF6", "#2B2F2C", "#B8C7BF"],
+      "materials": ["encre taille-douce", "filets guillochés", "papier fiduciaire"],
+      "viewport": "Barre latérale encre vert-bleu ; en tête un montant à la manière d'une valeur faciale ; tableaux à filets fins guillochés.",
+      "risk": "Le guilloche glisse vite vers l'ornement ; c'est aussi une piste « finance » assez attendue.",
+      "html": ".impeccable/mocks/decision/model-pick.html"
+    },
+    {
+      "id": "challenger-wayfinding",
+      "kind": "challenger",
+      "catalogId": "wayfinding-cartography-signage-terminal-yellow-wayfinding",
+      "label": "Signalétique d'aéroport",
+      "verdict": "competitive",
+      "lineage": "Bandeaux jaunes des terminaux, traduits en vert",
+      "thesis": "Chaque écran montre la prochaine décision dans un bandeau, comme un panneau à un carrefour de couloirs.",
+      "palette": ["#3CC66A", "#0D0D0D", "#FFFFFF", "#EDEFEA"],
+      "materials": ["bandeaux pleins", "pictogrammes", "flèches calées au bord"],
+      "viewport": "Bandeau vert plein en tête : « Routeur Salle du fond hors ligne → Réparer » ; dessous la liste, sobre.",
+      "case": "Très clair (la prochaine action saute aux yeux), mais les gérants ne s'y reconnaissent pas : tient un axe sur deux.",
+      "risk": "Trop de bandeaux et tout crie ; un seul à la fois.",
+      "html": ".impeccable/mocks/decision/challenger-wayfinding.html"
+    },
+    {"id": "challenger-splitflap", "kind": "challenger", "catalogId": "signals-instruments-split-flap-concourse", "label": "Tableau d'affichage à palettes", "verdict": "declined", "lineage": "Tableaux de gare", "thesis": "Lignes vivantes rangées dans une grille fixe.", "palette": ["#111111", "#FFFFFF", "#F2A900"], "materials": ["palettes noires", "lettres blanches"], "viewport": "Une grille de lignes qui basculent.", "case": "Costume d'instrument sur un écran de travail ; perd sur les deux axes.", "kept": "Mise à jour en place des chiffres sans casser la grille.", "risk": "Effet gadget."},
+    {"id": "challenger-orienteering", "kind": "challenger", "catalogId": "notation-diagram-systems-orienteering-map", "label": "Carte de course d'orientation", "verdict": "declined", "lineage": "Cartes ISOM", "thesis": "Un code couleur fixe, une seule couleur pour le parcours actif.", "palette": ["#FFFFFF", "#9E2A8E", "#D9A441", "#2B7BBF"], "materials": ["encres normées", "courbes de niveau"], "viewport": "Terrain coloré, parcours violet.", "case": "Sans lien avec le métier ; perd sur les deux axes.", "kept": "Une langue d'états fixe et réservée.", "risk": "Hors sujet."},
+    {"id": "challenger-metro", "kind": "challenger", "catalogId": "digital-design-canon-metro-typographic-tiles", "label": "Tuiles Metro", "verdict": "declined", "lineage": "Interface Metro", "thesis": "La typographie est l'interface.", "palette": ["#000000", "#00ABA9", "#FFFFFF"], "materials": ["aplats", "grandes minuscules"], "viewport": "Tuiles et titres coupés.", "case": "Langage d'une autre interface ; perd sur les deux axes.", "kept": "Supprimer les boîtes : le texte porte la hiérarchie.", "risk": "Daté."},
+    {"id": "challenger-streaming", "kind": "challenger", "catalogId": "pop-culture-shelf-streaming-title-card-wall", "label": "Mur de vignettes", "verdict": "declined", "lineage": "Catalogues de streaming", "thesis": "Rangées d'affiches qui grandissent au survol.", "palette": ["#141414", "#E50914", "#FFFFFF"], "materials": ["affiches", "fond sombre"], "viewport": "Rangées horizontales.", "case": "Pas d'images à montrer ; perd sur les deux axes.", "kept": "Une seule chose mise en avant à la fois.", "risk": "Vide sans visuels."},
+    {"id": "challenger-botanical", "kind": "challenger", "catalogId": "editorial-sequence-montage-botanical-folio-season", "label": "Planches botaniques", "verdict": "declined", "lineage": "Folios botaniques", "thesis": "Même échelle, mêmes repères, d'une étape à l'autre.", "palette": ["#F3EAD3", "#3E6B3A", "#A3271F"], "materials": ["papier crème", "filets sépia"], "viewport": "Cinq planches alignées.", "case": "Univers éditorial, pas un outil ; perd sur les deux axes.", "kept": "Comparer à échelle constante (jour, semaine).", "risk": "Crème + serif : le défaut."}
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code"},
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "Le standard SaaS (façon Stripe)",
+    "thesis": "Ce que fait la catégorie, exécuté au niveau de Stripe : blanc, gris, un vert d'action.",
+    "palette": ["#FFFFFF", "#F6F8F7", "#1A1F1C", "#3CC66A"],
+    "materials": ["grille nette", "tableaux impeccables"],
+    "viewport": "Barre latérale claire, titre, filtres, tableau.",
+    "risk": "Indiscernable des concurrents, par construction.",
+    "html": ".impeccable/mocks/decision/canon.html"
+  },
+  "steer": true
+}

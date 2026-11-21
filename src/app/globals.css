@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+/*
+ * Jetons Ronetz, édition 2, bâtis sur le moteur de design de Stripe
+ * (docs/design/stripe-design-engine.md).
+ *
+ * Trois couches, comme la référence :
+ *   1. primitives : rampes de gris (--gray-*) et de vert de marque (--emerald-*, valeurs de la charte édition 3) ;
+ *   2. rôles : --background, --foreground, --primary, --border… (ce que les composants utilisent) ;
+ *   3. états : survolé, appuyé, désactivé, et les retours en trois intensités.
+ * Un composant n'écrit jamais une valeur de couleur : il demande un rôle.
+ *
+ * Thèmes : clair et sombre à égalité, un seul jeton par rôle avec `light-dark(clair, sombre)`.
+ * Le thème suit le système ; `data-theme="light"` ou `"dark"` le force. Le sombre est un graphite
+ * froid : l'émeraude n'y apparaît que sur l'action, le focus et les indicateurs.
+ *
+ * Contrastes (WCAG AA) : texte ≥ 4,5:1, bords de champs et icônes ≥ 3:1.
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme] {
+  color-scheme: light dark;
+
+  /* ── 1. Primitives ─────────────────────────────────────────────────────── */
+  /* Gris froid : une seule rampe pour le texte, les traits et les fonds. */
+  --gray-0: #ffffff;
+  --gray-25: #f8fafc;
+  --gray-50: #f2f5f8;
+  --gray-100: #e7ecf1;
+  --gray-200: #d6dde6;
+  --gray-300: #bac4d0;
+  --gray-400: #8f9cad;
+  --gray-500: #657489;
+  --gray-600: #4a586c;
+  --gray-700: #364255;
+  --gray-800: #243044;
+  --gray-900: #17212f;
+  /* Émeraude : la marque. 600 est la couleur de marque (#047857). */
+  --emerald-25: #f3fdf5;
+  --emerald-50: #e9fbee;
+  --emerald-100: #c9f5d4;
+  --emerald-200: #94eaab;
+  --emerald-300: #6ad88c;
+  --emerald-400: #3cc66a;
+  --emerald-500: #2ea456;
+  --emerald-600: #177a36;
+  --emerald-700: #125e2a;
+  --emerald-800: #123d1e;
+  --emerald-900: #0c2814;
+
+  /* ── 2. Rôles : surfaces et texte ──────────────────────────────────────── */
+  --shell: light-dark(oklch(0.982 0.005 165), oklch(0.17 0.006 165));
+  /* Fond des éléments (champs, tableaux, cartes) ; le fond de l'espace de travail est --canvas. */
+  --background: light-dark(#ffffff, oklch(0.17 0 0));
+  /* Fond des pages : pas un blanc pur, pour que les cartes blanches se détachent (comme Shopify). */
+  --page: var(--background);
+  --foreground: light-dark(#353a44, oklch(0.96 0 0));
+  --card: light-dark(#ffffff, oklch(0.2 0 0));
+  --card-foreground: var(--foreground);
+  --popover: light-dark(#ffffff, oklch(0.22 0 0));
+  --popover-foreground: var(--foreground);
+  --surface: light-dark(oklch(0.975 0.002 85), oklch(0.2 0 0));
+  --muted: light-dark(#f5f6f8, oklch(0.24 0 0));
+  --muted-foreground: light-dark(#687385, oklch(0.68 0 0));
+  --secondary: light-dark(#f1f1f1, oklch(0.25 0 0));
+  --secondary-foreground: var(--foreground);
+
+  /* ── Rôles : action (une seule couleur vive) ───────────────────────────── */
+  /* Charte édition 3 : action principale en Vert électrique, texte noir (jamais blanc sur le vert). */
+  --primary: var(--emerald-400);
+  --primary-foreground: #0d0d14;
+  --primary-hover: light-dark(var(--emerald-500), var(--emerald-300));
+  --primary-pressed: light-dark(var(--emerald-600), var(--emerald-500));
+  /* Signal : l'émeraude lisible en texte, en focus et en indicateur. */
+  /* Vert lisible en texte, focus et indicateurs : vert profond sur clair, vert électrique sur sombre. */
+  --signal: light-dark(var(--emerald-600), var(--emerald-400));
+  --accent: light-dark(#f1f1f1, oklch(0.25 0 0));
+  --accent-foreground: light-dark(oklch(0.2 0 0), oklch(0.96 0 0));
+  /* Nuit : la couleur de fond de la marque (pastilles, couvertures). */
+  --forest: #16152b;
+  --forest-foreground: #ffffff;
+
+  /* ── Rôles : traits ────────────────────────────────────────────────────── */
+  --border: light-dark(#ebeef1, oklch(1 0 0 / 10%));
+  --input: light-dark(#d5dbe1, oklch(1 0 0 / 16%));
+  --input-hover: light-dark(var(--gray-500), #8593a6);
+  --ring: var(--signal);
+
+  /* ── 3. États : retours en trois intensités (fond pâle, texte, accentué) ── */
+  --success: light-dark(#e8f7ee, #14241b);
+  --success-foreground: light-dark(#166534, #7ee2a8);
+  --success-border: light-dark(#b4e3c7, #24513a);
+  --success-emphasized: light-dark(#15803d, #4ade80);
+  --warning: light-dark(#fef3d7, #2c2410);
+  --warning-foreground: light-dark(#8a4b00, #fbbf24);
+  --warning-border: light-dark(#f2d58f, #6b4a0e);
+  --warning-emphasized: light-dark(#b45309, #f59e0b);
+  --danger: light-dark(#fdecec, #2f1816);
+  --danger-foreground: light-dark(#b42318, #fda29b);
+  --danger-border: light-dark(#f6c3bf, #7a271a);
+  --danger-emphasized: light-dark(#d92d20, #f97066);
+  --info: light-dark(#e6f1fe, #14202f);
+  --info-foreground: light-dark(#1d4ed8, #93b4fd);
+  --info-border: light-dark(#bcd7fb, #25406a);
+  --info-emphasized: light-dark(#2563eb, #60a5fa);
+  --destructive: light-dark(#d92d20, #f97066);
+  --destructive-foreground: light-dark(#ffffff, #2a0a07);
+
+  /* Voile des fenêtres : neutre et léger, jamais noir plein. */
+  --overlay: light-dark(rgb(26 26 26 / 35%), rgb(0 0 0 / 65%));
+
+  /* Graphiques : une seule teinte, en dégradé. */
+  --chart-1: light-dark(var(--emerald-200), var(--emerald-200));
+  --chart-2: light-dark(var(--emerald-400), var(--emerald-300));
+  --chart-3: light-dark(var(--emerald-600), var(--emerald-400));
+  --chart-4: light-dark(var(--emerald-700), var(--emerald-500));
+  --chart-5: light-dark(var(--emerald-800), var(--emerald-600));
+
+  /* Barre latérale : posée directement sur la coque, sans bordure. */
+  /* Barre latérale blanche séparée par un filet, comme Stripe. */
+  --sidebar: var(--background);
+  --sidebar-foreground: light-dark(#353a44, oklch(0.9 0 0));
+  --sidebar-muted-foreground: light-dark(#687385, oklch(0.7 0 0));
+  --sidebar-primary: var(--emerald-400);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: light-dark(#f5f6f8, oklch(1 0 0 / 8%));
+  --sidebar-accent-foreground: var(--sidebar-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Langue d'états fixe : un point de couleur, jamais un fond. */
+  --state-ok: #2fae58;
+  --state-warn: #d99a1e;
+  --state-down: #d2452f;
+  --state-idle: light-dark(#a3ada6, #5c665f);
+
+  /* Ombres : toujours deux couches, trois niveaux (référence : petite, moyenne, grande). */
+  --shadow-sm:
+    0 1px 1px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 40%)),
+    0 2px 5px light-dark(rgb(26 26 26 / 8%), rgb(0 0 0 / 30%));
+  --shadow-md:
+    0 3px 6px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 45%)),
+    0 7px 14px light-dark(rgb(26 26 26 / 8%), rgb(0 0 0 / 35%));
+  /* Carte façon Shopify : contour d'un pixel, bord bas plus marqué, légère portée. */
+  --shadow-card:
+    0 0 0 1px light-dark(rgb(26 26 26 / 8%), rgb(255 255 255 / 8%)),
+    0 1px 0 0 light-dark(rgb(26 26 26 / 16%), rgb(0 0 0 / 50%)),
+    0 3px 6px -2px light-dark(rgb(26 26 26 / 9%), rgb(0 0 0 / 35%)),
+    inset 0 -1px 0 0 light-dark(rgb(26 26 26 / 6%), rgb(255 255 255 / 3%));
+  --shadow-float:
+    0 5px 15px light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 50%)),
+    0 15px 35px light-dark(rgb(26 26 26 / 8%), rgb(0 0 0 / 40%));
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-shell: var(--shell);
+  --color-page: var(--page);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-signal: var(--signal);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-forest: var(--forest);
+  --color-forest-foreground: var(--forest-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-hover: var(--input-hover);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-border: var(--success-border);
+  --color-success-emphasized: var(--success-emphasized);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-border: var(--warning-border);
+  --color-warning-emphasized: var(--warning-emphasized);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-border: var(--danger-border);
+  --color-danger-emphasized: var(--danger-emphasized);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-border: var(--info-border);
+  --color-info-emphasized: var(--info-emphasized);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-overlay: var(--overlay);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-state-ok: var(--state-ok);
+  --color-state-warn: var(--state-warn);
+  --color-state-down: var(--state-down);
+  --color-state-idle: var(--state-idle);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Rayons de la référence : 4, 6 (contrôles), 8, 12 (panneaux), 16 (grandes surfaces). */
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  --shadow-float: var(--shadow-float);
+  --shadow-card: var(--shadow-card);
+
+  /* Archivo (variable, axe de largeur) : corps en largeur normale, chiffres en étroit. */
+  --font-sans:
+    var(--font-archivo), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Arial, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Échelle de texte de la référence : corps 14/20, petit 12/16, titre de page 28/36. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.25rem;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.75rem;
+  --text-3xl--line-height: 2.25rem;
+
+  --animate-toast-in: toast-in 160ms ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Chiffres du kiosque : étroits, gras, alignés. */
+@utility font-figure {
+  font-stretch: 72%;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  input,
+  textarea {
+    caret-color: var(--emerald-600);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background font-sans text-sm text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    text-wrap: balance;
+  }
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+  /* Focus visible partout, au clavier uniquement. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
