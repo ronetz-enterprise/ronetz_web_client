@@ -1,5 +1,6 @@
 "use client";
 
+import { isAccidentalDismiss } from "@/lib/form-utils";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { StatusPill } from "@/components/patterns/row-card-list";
@@ -394,7 +395,15 @@ function OfferEditDialog({
   }
 
   return (
-    <Dialog open onOpenChange={(open) => !open && !saving && onClose()}>
+    <Dialog
+      open
+      onOpenChange={(open, details) => {
+        if (open || saving) return;
+        // Des champs modifiés ne se perdent pas sur un clic à côté ou sur Échap.
+        if (form.dirtyCount > 0 && isAccidentalDismiss(details)) return;
+        onClose();
+      }}
+    >
       <DialogContent className="max-h-[90svh] gap-0 overflow-hidden p-0 sm:max-w-xl">
         <DialogHeader className="border-b border-border px-6 py-4">
           <DialogTitle>

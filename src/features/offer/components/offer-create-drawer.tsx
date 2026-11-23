@@ -1,5 +1,6 @@
 "use client";
 
+import { isAccidentalDismiss } from "@/lib/form-utils";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -146,8 +147,13 @@ export function OfferCreateDrawer({
   const show = (k: keyof CreateValues) => (submitted ? errors[k] : undefined);
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
-  function close(next: boolean) {
+  // Un brouillon commencé ne se perd pas sur un clic à côté ou sur Échap.
+  const dirty =
+    JSON.stringify({ ...draft, siteId: "" }) !==
+    JSON.stringify({ ...blank(initialSite), siteId: "" });
+  function close(next: boolean, details?: { reason?: string }) {
     if (mutation.isPending) return;
+    if (!next && dirty && isAccidentalDismiss(details)) return;
     onOpenChange(next);
     if (!next)
       setTimeout(() => {

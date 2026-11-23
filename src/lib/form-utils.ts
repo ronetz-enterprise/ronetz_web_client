@@ -17,3 +17,11 @@ export function zodResolver<T extends FieldValues>(
     return { values: {}, errors } as ReturnType<Resolver<T>>;
   };
 }
+
+/**
+ * Fermeture involontaire d'un tiroir ou d'une fenêtre : clic à côté ou touche Échap.
+ * Quand une saisie serait perdue, on l'ignore ; la croix et « Annuler » ferment toujours.
+ */
+export function isAccidentalDismiss(details?: { reason?: string }): boolean {
+  return details?.reason === "outside-press" || details?.reason === "escape-key";
+}

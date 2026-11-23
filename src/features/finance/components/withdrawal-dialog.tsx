@@ -1,5 +1,6 @@
 "use client";
 
+import { isAccidentalDismiss } from "@/lib/form-utils";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -120,7 +121,13 @@ export function WithdrawalDialog({ balance }: { balance: Balance }) {
   return (
     <Dialog
       open={open}
-      onOpenChange={(next) => !mutation.isPending && setOpen(next)}
+      onOpenChange={(next, details) => {
+        if (mutation.isPending) return;
+        // Une demande commencée ne se perd pas sur un clic à côté ou sur Échap.
+        const dirty = Boolean(amount || msisdn || firstName || lastName);
+        if (!next && dirty && isAccidentalDismiss(details)) return;
+        setOpen(next);
+      }}
     >
       <DialogTrigger
         render={<Button variant="outline" className="h-11 sm:h-9" />}
