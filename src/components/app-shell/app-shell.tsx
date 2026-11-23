@@ -3,12 +3,17 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cancel01Icon,
-  PlusSignIcon,
+  HelpCircleIcon,
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 import { Logo } from "@/components/logo";
 import { StartChecklist } from "@/components/start-checklist";
@@ -26,14 +31,18 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useOptionalOrganization } from "@/features/organizations/hooks/organization-context";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 import { mainNav, settings, type NavItem } from "./nav-items";
-import { SellAccessDrawer } from "@/features/access";
-import { SellDrawer } from "./sell-drawer";
-import { setupSteps } from "./setup-steps";
+import { sampleSetupSteps } from "./setup-steps";
+import { useConsoleSetupSteps } from "./use-console-setup";
+import { PlatformTour } from "./platform-tour";
+import { PageHints } from "./page-hints";
+import { useSeen } from "./onboarding-memory";
+import type { ChecklistStep } from "@/components/start-checklist";
+
 
 const activeStyle =
   "data-active:bg-transparent data-active:font-semibold data-active:text-signal data-active:[&_svg]:text-signal";
@@ -44,6 +53,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <SidebarMenuItem>
       <SidebarMenuButton
         render={<Link href={item.href} />}
+        data-tour={`nav-${item.href}`}
         isActive={active}
         className={activeStyle}
       >
@@ -51,6 +61,24 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
         <span>{item.label}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
+  );
+}
+
+/** « Visite guidée » dans le menu : sur téléphone, referme d'abord le menu pour laisser voir la page. */
+function TourRelaunch({ onLaunch }: { onLaunch: () => void }) {
+  const { setOpenMobile } = useSidebar();
+  return (
+    <SidebarMenuButton
+      data-tour="tour-relaunch"
+      onClick={() => {
+        // Sur téléphone, la visite pointe le bouton du menu : on referme le menu d'abord.
+        setOpenMobile(false);
+        onLaunch();
+      }}
+    >
+      <HugeiconsIcon icon={HelpCircleIcon} strokeWidth={1.8} />
+      <span>Visite guidée</span>
+    </SidebarMenuButton>
   );
 }
 
@@ -86,29 +114,66 @@ function Ring({ done, total }: { done: number; total: number }) {
 /**
  * L'ossature, d'après la référence : un fond de coque teinté, la barre latérale posée dessus sans
  * bordure, et un grand panneau arrondi pour le contenu. En haut du panneau : recherche, alertes,
- * guide de démarrage, et l'action principale « Vendre un accès ».
+ * guide de démarrage. Les accès se vendent uniquement sur le portail client.
  */
-export function AppShell({
-  children,
-  organization: organizationProp,
-  manager,
-}: {
+type ShellProps = {
   children: ReactNode;
   organization?: string;
   manager?: string;
-}) {
+};
+
+export function AppShell(props: ShellProps) {
+  const context = useOptionalOrganization();
+  // Dans la console, le guide suit l'état réel du compte ; les gabarits montrent un exemple.
+  return context ? (
+    <ConsoleShell {...props} />
+  ) : (
+    <ShellFrame {...props} steps={sampleSetupSteps} />
+  );
+}
+
+function ConsoleShell(props: ShellProps) {
+  const steps = useConsoleSetupSteps();
+  return <ShellFrame {...props} steps={steps} />;
+}
+
+function ShellFrame({
+  children,
+  organization: organizationProp,
+  manager,
+  steps,
+}: ShellProps & { steps: ChecklistStep[] | null }) {
   const pathname = usePathname();
   const context = useOptionalOrganization();
   // Dans la console, le nom vient de l'organisation active ; les gabarits passent leurs exemples.
   const organization =
     organizationProp ?? context?.organizationName ?? "Mon organisation";
-  const isMobile = useIsMobile();
-  const [sellOpen, setSellOpen] = useState(false);
-  const [guideOverride, setGuideOverride] = useState<boolean | null>(null);
-  // Le guide s'ouvre de lui-même sur l'accueil seulement : ailleurs, il gênerait le travail en cours.
-  const guideOpen =
-    guideOverride ?? (!isMobile && pathname === mainNav[0].href);
-  const done = setupSteps.filter((s) => s.done).length;
+  // Le guide ne s'ouvre que sur demande : ouvert d'office, il cachait le contenu de l'accueil.
+  const [guideRequested, setGuideRequested] = useState(false);
+  const total = steps?.length ?? 0;
+  const done = steps?.filter((s) => s.done).length ?? 0;
+  // Pendant le chargement, ou une fois tout fait, le guide n'a rien à dire : il disparaît.
+  const guideAvailable = steps !== null && done < total;
+  const guideOpen = guideAvailable && guideRequested;
+  // Visite guidée : d'elle-même au premier lancement dans la console, puis depuis le menu.
+  const organizationId = context?.organizationId ?? null;
+  const tourSeen = useSeen(organizationId, "tour");
+  const [tourRequested, setTourRequested] = useState(false);
+  const [tourDismissed, setTourDismissed] = useState(false);
+  const tourOpen = tourRequested || (!tourSeen && !tourDismissed);
+  const setTourOpen = (next: boolean) => {
+    setTourRequested(next);
+    if (!next) setTourDismissed(true);
+  };
+
+  useEffect(() => {
+    if (!guideOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setGuideRequested(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [guideOpen]);
 
   return (
     // Largeur Stripe : juste ce qu’il faut pour « Guide de démarrage » et les libellés courts.
@@ -119,6 +184,7 @@ export function AppShell({
             <SidebarMenuItem>
               <SidebarMenuButton
                 size="lg"
+                data-tour="account"
                 className="h-auto py-1.5"
                 aria-label={`Compte : ${organization}`}
               >
@@ -147,7 +213,7 @@ export function AppShell({
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu data-tour="nav">
                 {mainNav.map((item) => (
                   <NavLink key={item.href} item={item} pathname={pathname} />
                 ))}
@@ -157,6 +223,16 @@ export function AppShell({
         </SidebarContent>
         <SidebarFooter className="p-2">
           <SidebarMenu>
+            {organizationId ? (
+              <SidebarMenuItem>
+                <TourRelaunch
+                  onLaunch={() => {
+                    setGuideRequested(false);
+                    setTourOpen(true);
+                  }}
+                />
+              </SidebarMenuItem>
+            ) : null}
             <NavLink item={settings} pathname={pathname} />
           </SidebarMenu>
         </SidebarFooter>
@@ -166,30 +242,30 @@ export function AppShell({
       <SidebarInset className="min-w-0 md:h-svh md:overflow-hidden">
         <header className="sticky top-0 z-20 bg-background px-3 sm:px-8 md:static">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2">
-            <SidebarTrigger aria-label="Ouvrir le menu" className="md:hidden" />
+            <SidebarTrigger
+              aria-label="Ouvrir le menu"
+              data-tour="menu-trigger"
+              className="md:hidden"
+            />
             <Logo className="md:hidden [&_span]:text-base" />
             <div className="ml-auto flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                onClick={() => setGuideOverride(!guideOpen)}
-                aria-expanded={guideOpen}
-                className="gap-2 px-2.5"
-              >
-                <Ring done={done} total={setupSteps.length} />
-                <span className="hidden sm:inline">Guide de démarrage</span>
-                <span className="tabular-nums sm:hidden">
-                  {done}/{setupSteps.length}
-                </span>
-              </Button>
-              <Button onClick={() => setSellOpen(true)} aria-haspopup="dialog">
-                <HugeiconsIcon
-                  icon={PlusSignIcon}
-                  strokeWidth={2}
-                  data-icon="inline-start"
-                />
-                <span className="hidden sm:inline">Vendre un accès</span>
-                <span className="sm:hidden">Vendre</span>
-              </Button>
+              {guideAvailable ? (
+                <Button
+                  variant="outline"
+                  data-tour="guide"
+                  onClick={() => setGuideRequested(!guideOpen)}
+                  aria-expanded={guideOpen}
+                  aria-controls="guide-demarrage"
+                  aria-label={`Guide de démarrage, ${done} étapes faites sur ${total}`}
+                  className="gap-2 px-2.5"
+                >
+                  <Ring done={done} total={total} />
+                  <span className="hidden sm:inline">Guide de démarrage</span>
+                  <span className="tabular-nums sm:hidden">
+                    Démarrage {done}/{total}
+                  </span>
+                </Button>
+              ) : null}
             </div>
           </div>
         </header>
@@ -203,18 +279,19 @@ export function AppShell({
 
       {guideOpen ? (
         <aside
+          id="guide-demarrage"
           aria-label="Guide de démarrage"
           className="fixed right-3 bottom-3 left-3 z-30 max-h-[70vh] overflow-y-auto rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-[var(--shadow-float)] sm:left-auto sm:w-96"
         >
           <StartChecklist
-            title="Pour vendre votre premier accès"
-            steps={setupSteps}
+            title="Pour recevoir vos premiers achats"
+            steps={steps ?? []}
             action={
               <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Fermer le guide"
-                onClick={() => setGuideOverride(false)}
+                onClick={() => setGuideRequested(false)}
               >
                 <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.8} />
               </Button>
@@ -222,12 +299,23 @@ export function AppShell({
           />
         </aside>
       ) : null}
-      {/* Console : le vrai tiroir de vente. Gabarits (hors console) : la maquette. */}
-      {context ? (
-        <SellAccessDrawer open={sellOpen} onOpenChange={setSellOpen} />
-      ) : (
-        <SellDrawer open={sellOpen} onOpenChange={setSellOpen} />
-      )}
+      {organizationId && tourOpen ? (
+        <PlatformTour
+          organizationId={organizationId}
+          guideAvailable={guideAvailable}
+          onClose={(how) => {
+            setTourOpen(false);
+            // Au bout de la visite, le guide de démarrage prend le relais : un seul parcours.
+            if (how === "finished" && guideAvailable) setGuideRequested(true);
+          }}
+        />
+      ) : null}
+      {organizationId ? (
+        <PageHints
+          organizationId={organizationId}
+          paused={tourOpen || guideOpen}
+        />
+      ) : null}
     </SidebarProvider>
   );
 }

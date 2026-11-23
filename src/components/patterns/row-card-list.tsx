@@ -315,6 +315,7 @@ export function RowCardToolbar({
 }) {
   return (
     <div
+      data-slot="list-toolbar"
       className={cn(
         "flex flex-col gap-3 md:flex-row-reverse md:items-center md:justify-between",
         className,

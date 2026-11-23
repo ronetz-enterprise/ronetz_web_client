@@ -115,18 +115,8 @@ export function RouterDetailScreen({ routerId }: { routerId: string }) {
             {instruction}
           </RecordNotice>
         ) : !stage && state.kind === "online" ? (
-          <RecordNotice
-            title="Votre routeur est en ligne"
-            action={
-              <Link
-                href={routes.accessNew()}
-                className="font-medium text-signal hover:underline"
-              >
-                Vendre un accès
-              </Link>
-            }
-          >
-            Vos clients peuvent se connecter.
+          <RecordNotice title="Votre routeur est en ligne">
+            Vos clients peuvent se connecter et acheter un accès sur le portail.
           </RecordNotice>
         ) : null
       }

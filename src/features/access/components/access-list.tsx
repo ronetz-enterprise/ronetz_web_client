@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
 import {
   RowCardList,
@@ -18,13 +17,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useOrganization } from "@/features/organizations/hooks/organization-context";
-import { routes } from "@/lib/routes";
 import { formatTimeLeft, dayLabel, formatValidity } from "../formatters/access";
 import { accessErrorMessage } from "../formatters/errors";
 import {
@@ -60,7 +57,6 @@ const RECENT_LIMIT = 100;
 export function AccessList() {
   const { membership } = useOrganization();
   const canView = accessPermissions(membership).canViewAccessGrants;
-  const canCreate = accessPermissions(membership).canCreateManualAccess;
   const [selectedId, setSelectedId] = useSelectedParam("acces");
   // Stripe : une ligne ouvre la page de l’élément (pas de panneau latéral).
   const [page, setPage] = useState(1);
@@ -119,19 +115,7 @@ export function AccessList() {
     <div className="flex flex-col">
       <PageHeader
         title="Accès"
-        description="Les identifiants de connexion que vous avez vendus ou que vos clients ont achetés. Le temps d’un accès commence à son émission."
-        actions={
-          canCreate ? (
-            <Button
-              variant="outline"
-              className="h-11 sm:h-9"
-              render={<Link href={routes.accessNew()} />}
-              nativeButton={false}
-            >
-              Créer un accès
-            </Button>
-          ) : null
-        }
+        description="Les identifiants de connexion que vos clients ont achetés sur le portail. Le temps d’un accès commence à son émission."
       />
       {!canView ? (
         <Alert variant="warning">
@@ -267,20 +251,9 @@ export function AccessList() {
                       <EmptyDescription>
                         {filtering
                           ? "Essayez un autre filtre ou une autre recherche."
-                          : "Vendez votre premier accès : il apparaîtra ici dès sa création."}
+                          : "Les accès achetés par vos clients sur le portail apparaîtront ici."}
                       </EmptyDescription>
                     </EmptyHeader>
-                    {!filtering && canCreate ? (
-                      <EmptyContent>
-                        <Button
-                          className="h-11 sm:h-9"
-                          render={<Link href={routes.accessNew()} />}
-                          nativeButton={false}
-                        >
-                          Créer un accès
-                        </Button>
-                      </EmptyContent>
-                    ) : null}
                   </Empty>
                 }
               />

@@ -12,7 +12,7 @@ export function accessErrorMessage(
       if (error.status === 409)
         return "Cet accès existe déjà ou la demande est en conflit. Vérifiez la liste avant de recommencer.";
       if (error.status === 403)
-        return "Seul le propriétaire du compte peut créer un accès, sur un site actif.";
+        return "Seul le propriétaire du compte peut vendre un accès, sur un site actif.";
       if (error.status === 400)
         return "Vérifiez la durée et les conditions de l’accès.";
     }

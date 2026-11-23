@@ -1,28 +1,8 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/page-header";
-import { ManualAccessForm } from "@/features/access";
 import { routes } from "@/lib/routes";
 
-export const metadata: Metadata = { title: "Créer un accès" };
-
+// La vente au comptoir est retirée : les accès s'achètent uniquement sur le portail client.
 export default function Page() {
-  return (
-    <main className="w-full">
-      <PageHeader
-        title="Créer un accès"
-        description="Un identifiant et un mot de passe à remettre à un client."
-        back={
-          <Link
-            href={routes.access()}
-            className="text-muted-foreground hover:underline"
-          >
-            ← Accès
-          </Link>
-        }
-      />
-      <ManualAccessForm />
-    </main>
-  );
+  redirect(routes.access());
 }

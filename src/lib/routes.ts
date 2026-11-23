@@ -47,7 +47,6 @@ export const routes = {
   routerSettings: (routerId: string) => `/routers/${routerId}/settings`,
 
   access: () => `/access`,
-  accessNew: () => `/access/new`,
   accessGrant: (accessGrantId: string) => `/access/${accessGrantId}`,
 
   offers: () => `/offers`,
