@@ -410,6 +410,13 @@ const routes: Route[] = [
   ["GET", new RegExp(`^${ORG}/withdrawals$`), (c) => json(200, page([], c.q))],
   ["POST", new RegExp(`^${ORG}/withdrawals$`), () =>
     problem(409, "Les retraits seront bientôt disponibles.", "WITHDRAWALS_DISABLED")],
+  ["POST", /^\/api\/auth\/password-reset\/request$/, () => json(202)],
+  ["POST", /^\/api\/auth\/email-verification\/resend$/, () => json(202)],
+  ["POST", /^\/api\/auth\/(password-reset\/confirm|email-verification\/confirm)$/, ({ body }) =>
+    (body as { token?: string })?.token === "expire"
+      ? problem(410, "Lien expiré", "TOKEN_EXPIRED")
+      : json(204)],
+  ["GET", /^\/api\/public\/pricing$/, () => json(200, { commissionRate: 0.1, currency: "XAF", effectiveFrom: "2026-11-26", withdrawal: { enabled: false, minimumAmount: 1000, approvalThreshold: 100000 } })],
   ["GET", /^\/api\/accounting\/pricing$/, () => json(200, { commissionRate: 0.1, currency: "XAF" })],
 
   // ── Rapports ────────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RegisterForm, safeAuthDestination } from "@/features/authentication";
 import { routes } from "@/lib/routes";
+import { PriceLine } from "@/features/pricing";
 import { AuthCard } from "@/features/authentication/components/auth-card";
 
 function RegisterPageInner() {
@@ -26,9 +27,17 @@ function RegisterPageInner() {
           >
             Se connecter
           </Link>
+          {" · "}
+          <Link
+            href={routes.pricing()}
+            className="font-medium text-signal hover:underline"
+          >
+            Voir les tarifs
+          </Link>
         </>
       }
     >
+      <PriceLine className="-mt-2 text-sm text-muted-foreground" />
       <RegisterForm
         onSuccess={() => router.replace(loginHref + "&registered=1")}
       />

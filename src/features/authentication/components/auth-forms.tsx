@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { routes } from "@/lib/routes";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@/lib/form-utils";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -189,6 +191,14 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         )}
       </div>
       <PasswordField form={form} />
+      <p className="-mt-2 text-right text-sm">
+        <Link
+          href={routes.forgotPassword()}
+          className="inline-flex min-h-11 items-center font-medium text-signal hover:underline sm:min-h-0"
+        >
+          Mot de passe oublié ?
+        </Link>
+      </p>
       {rootError && (
         <Alert variant="destructive" role="alert">
           <AlertDescription>{rootError}</AlertDescription>

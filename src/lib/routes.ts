@@ -17,6 +17,7 @@ export const routes = {
   // ── Pages publiques ───────────────────────────────────────────────────────
   home: () => `/`,
   portal: () => `/portal`,
+  pricing: () => `/pricing`,
   forbidden: () => `/forbidden`,
 
   // ── Authentification ──────────────────────────────────────────────────────
@@ -24,6 +25,9 @@ export const routes = {
   register: () => `/register`,
   sessionExpired: () => `/session-expired`,
   account: () => `/account`,
+  forgotPassword: () => `/forgot-password`,
+  resetPassword: () => `/reset-password`,
+  verifyEmail: () => `/verify-email`,
 
   // ── Onboarding ────────────────────────────────────────────────────────────
   onboardingOrg: () => `/onboarding/organization`,
@@ -60,6 +64,7 @@ export const routes = {
 
   settingsGeneral: () => `/settings/general`,
   settingsMembers: () => `/settings/members`,
+  settingsPricing: () => `/settings/pricing`,
 
   // ── Administration plateforme ─────────────────────────────────────────────
   admin: () => `/admin`,
