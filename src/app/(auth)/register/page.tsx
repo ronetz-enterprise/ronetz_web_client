@@ -39,7 +39,11 @@ function RegisterPageInner() {
     >
       <PriceLine className="-mt-2 text-sm text-muted-foreground" />
       <RegisterForm
-        onSuccess={() => router.replace(loginHref + "&registered=1")}
+        onSuccess={(signedIn) =>
+          router.replace(
+            signedIn ? routes.verifyEmail() : loginHref + "&registered=1",
+          )
+        }
       />
     </AuthCard>
   );

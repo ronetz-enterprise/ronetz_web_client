@@ -219,7 +219,13 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
+export function RegisterForm({
+  onSuccess,
+}: {
+  /** `signedIn` : la session est ouverte, l'écran « Vérifiez votre boîte » peut s'afficher. */
+  onSuccess: (signedIn: boolean) => void;
+}) {
+  const auth = useAuth();
   const hydrated = useHydrated();
   const [error, setError] = useState<unknown>();
   const form = useForm<RegisterInput>({
@@ -236,8 +242,15 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         setError(undefined);
         try {
           await authenticationApi.register(input);
+          // Session ouverte tout de suite : la confirmation de l'adresse suit l'inscription.
+          const signedIn = await auth
+            .login({ email: input.email, password: input.password })
+            .then(
+              () => true,
+              () => false,
+            );
           form.reset();
-          onSuccess();
+          onSuccess(signedIn);
         } catch (failure) {
           setError(failure);
           form.resetField("password");

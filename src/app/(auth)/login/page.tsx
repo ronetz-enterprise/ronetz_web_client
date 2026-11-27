@@ -47,7 +47,7 @@ function LoginPageInner() {
           role="status"
           className="rounded-md bg-success px-3 py-2 text-sm text-success-foreground"
         >
-          Votre compte est créé. Connectez-vous pour continuer.
+          Votre compte est créé. Connectez-vous pour confirmer votre adresse e-mail.
         </p>
       ) : null}
       <LoginForm onSuccess={() => router.replace(returnTo)} />

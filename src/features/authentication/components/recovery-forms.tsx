@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePrincipal } from "@/features/identity";
+import { useAuth } from "../hooks/auth-provider";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@/lib/form-utils";
@@ -254,13 +258,23 @@ export function EmailConfirmation({ token }: { token: string | null }) {
   const [message, setMessage] = useState<string>();
   const started = useRef(false);
 
+  const queryClient = useQueryClient();
   const run = () => {
     if (!token) return;
     setState("pending");
-    accountRecoveryApi.confirmEmail(token).then(setState, (error) => {
-      setMessage(recoveryError(error));
-      setState("error");
-    });
+    accountRecoveryApi.confirmEmail(token).then(
+      (outcome) => {
+        // Le profil en cache disait « non confirmée » : la console doit le relire.
+        void queryClient.invalidateQueries({
+          queryKey: ["identity", "current"],
+        });
+        setState(outcome);
+      },
+      (error) => {
+        setMessage(recoveryError(error));
+        setState("error");
+      },
+    );
   };
   useEffect(() => {
     if (started.current) return;
@@ -299,6 +313,115 @@ export function EmailConfirmation({ token }: { token: string | null }) {
         <Link href={routes.login()} className={linkClass}>
           Se connecter
         </Link>
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Juste après l'inscription, et tant que l'adresse n'est pas confirmée : la console reste fermée.
+ * Le gérant peut renvoyer le lien, revérifier après avoir cliqué, ou se déconnecter.
+ */
+export function EmailPending() {
+  const auth = useAuth();
+  const router = useRouter();
+  const principal = usePrincipal();
+  const signedOut = auth.status === "anonymous" || auth.status === "expired";
+  const [sent, setSent] = useState(false);
+  const [message, setMessage] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const verified = principal.data?.emailVerified === true;
+
+  useEffect(() => {
+    if (verified) router.replace(routes.dashboard());
+  }, [verified, router]);
+
+  if (signedOut)
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Connectez-vous pour recevoir un nouveau lien de confirmation.
+        </p>
+        <Link
+          href={
+            routes.login() +
+            "?returnTo=" +
+            encodeURIComponent(routes.verifyEmail())
+          }
+          className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+        >
+          Se connecter
+        </Link>
+      </div>
+    );
+  if (!principal.data)
+    return (
+      <p role="status" className="text-sm text-muted-foreground">
+        Chargement…
+      </p>
+    );
+
+  const address = principal.data.email;
+  const resend = async () => {
+    setBusy(true);
+    setMessage(undefined);
+    try {
+      await accountRecoveryApi.resendEmailConfirmation(address);
+      setSent(true);
+    } catch (error) {
+      setMessage(recoveryError(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm">
+        Nous avons envoyé un lien à{" "}
+        <strong className="font-semibold">{address}</strong>. Ouvrez cet e-mail
+        et cliquez sur « Confirmer mon adresse » pour accéder à votre console.
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Rien reçu après quelques minutes ? Regardez dans les courriers
+        indésirables.
+      </p>
+      {sent && (
+        <p role="status" className="text-sm text-muted-foreground">
+          Un nouveau lien vient de partir.
+        </p>
+      )}
+      {message && (
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+      <Button
+        className="h-11 w-full"
+        disabled={principal.isFetching}
+        onClick={() => void principal.refetch()}
+      >
+        {principal.isFetching ? "Vérification…" : "J’ai confirmé mon adresse"}
+      </Button>
+      <Button
+        variant="outline"
+        className="h-11 w-full"
+        disabled={busy}
+        onClick={() => void resend()}
+      >
+        {busy ? "Envoi…" : "Renvoyer le lien"}
+      </Button>
+      <p className="text-center text-sm text-muted-foreground">
+        Ce n’est pas votre adresse ?{" "}
+        <button
+          type="button"
+          className={linkClass}
+          onClick={() =>
+            void auth.logout().finally(() => router.replace(routes.register()))
+          }
+        >
+          Créer un compte avec une autre adresse
+        </button>
       </p>
     </div>
   );

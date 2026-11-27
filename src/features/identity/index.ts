@@ -10,6 +10,7 @@ export const principalSchema = z.object({
   lastName: z.string(),
   status: z.literal("ACTIVE"),
   platformAdmin: z.boolean(),
+  emailVerified: z.boolean(),
 });
 
 export type Principal = z.infer<typeof principalSchema>;

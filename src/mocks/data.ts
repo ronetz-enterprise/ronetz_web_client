@@ -39,6 +39,7 @@ export function seed(now = Date.now()) {
     lastName: "Mbarga",
     status: "ACTIVE",
     platformAdmin: false,
+    emailVerified: true,
   };
 
   const membership = {
