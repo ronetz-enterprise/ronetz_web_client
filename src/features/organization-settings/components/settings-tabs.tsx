@@ -8,6 +8,7 @@ import { routes } from "@/lib/routes";
 const tabs = [
   { label: "Général", href: routes.settingsGeneral() },
   { label: "Membres", href: routes.settingsMembers() },
+  { label: "Tarifs", href: routes.settingsPricing() },
 ] as const;
 
 /**

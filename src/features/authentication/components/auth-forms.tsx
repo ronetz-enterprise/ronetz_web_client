@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { routes } from "@/lib/routes";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@/lib/form-utils";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -189,6 +191,14 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
         )}
       </div>
       <PasswordField form={form} />
+      <p className="-mt-2 text-right text-sm">
+        <Link
+          href={routes.forgotPassword()}
+          className="inline-flex min-h-11 items-center font-medium text-signal hover:underline sm:min-h-0"
+        >
+          Mot de passe oublié ?
+        </Link>
+      </p>
       {rootError && (
         <Alert variant="destructive" role="alert">
           <AlertDescription>{rootError}</AlertDescription>
@@ -209,7 +219,13 @@ export function LoginForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
+export function RegisterForm({
+  onSuccess,
+}: {
+  /** `signedIn` : la session est ouverte, l'écran « Vérifiez votre boîte » peut s'afficher. */
+  onSuccess: (signedIn: boolean) => void;
+}) {
+  const auth = useAuth();
   const hydrated = useHydrated();
   const [error, setError] = useState<unknown>();
   const form = useForm<RegisterInput>({
@@ -226,8 +242,15 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         setError(undefined);
         try {
           await authenticationApi.register(input);
+          // Session ouverte tout de suite : la confirmation de l'adresse suit l'inscription.
+          const signedIn = await auth
+            .login({ email: input.email, password: input.password })
+            .then(
+              () => true,
+              () => false,
+            );
           form.reset();
-          onSuccess();
+          onSuccess(signedIn);
         } catch (failure) {
           setError(failure);
           form.resetField("password");

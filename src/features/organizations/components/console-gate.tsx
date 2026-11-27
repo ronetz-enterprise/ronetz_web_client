@@ -7,6 +7,7 @@ import { useAuth } from "@/features/authentication/hooks/auth-provider";
 import { isAccessible, useMemberships } from "@/features/memberships";
 import { Skeleton } from "@/components/ui/skeleton";
 import { routes } from "@/lib/routes";
+import { usePrincipal } from "@/features/identity";
 import { OrganizationAccessNotice } from "./access-notice";
 import {
   getStoredOrganizationId,
@@ -39,6 +40,12 @@ export function ConsoleGate({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const signedOut = auth.status === "anonymous" || auth.status === "expired";
+  // Adresse non confirmée : l'API refuse tout le reste, on mène à l'écran de confirmation.
+  const principal = usePrincipal();
+  const unverified = principal.data?.emailVerified === false;
+  useEffect(() => {
+    if (unverified) router.replace(routes.verifyEmail());
+  }, [unverified, router]);
   const memberships = useMemberships();
 
   useEffect(() => {
@@ -66,7 +73,8 @@ export function ConsoleGate({ children }: { children: ReactNode }) {
   }, [needsOnboarding, needsChoice, router]);
 
   if (auth.status === "unavailable") return <SessionRecovery />;
-  if (auth.status === "initializing" || signedOut) return <Loading />;
+  if (auth.status === "initializing" || signedOut || unverified)
+    return <Loading />;
   if (memberships.isError)
     return (
       <div className="p-6">

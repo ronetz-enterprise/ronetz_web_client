@@ -66,7 +66,7 @@ export type PurchaseAccessStatus = z.infer<typeof accessStatusSchema>;
 
 const credentialSchema = z.object({
   credentialId: uuid,
-  username: z.string().regex(/^rz_[a-f0-9]{32}$/),
+  username: z.string().regex(/^([a-hjkmnp-z2-9]{6}|rz_[a-f0-9]{32})$/),
   clearTextPassword: z.string().min(1),
   expiresAt: instant,
 });
